@@ -1,0 +1,22 @@
+meta:
+  app_id: opal_tool_reference_app
+  display_name: Google Analytics Opal Tool Reference App
+  version: 1.0.0-dev.1
+  vendor: optimizely
+  summary: An example app demonstrating the use of the Opal tool function.
+  support_url: https://optimizely.com
+  contact_email: support@optimizely.com
+  categories:
+    - Opal
+    - Marketing
+  availability:
+    - all
+
+runtime: node22
+
+functions:
+  opal_tool:
+    entry_point: OpalToolFunction
+    description: Opal tool function
+    opal_tool: true
+

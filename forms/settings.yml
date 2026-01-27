@@ -1,0 +1,16 @@
+sections:
+  - key: defaults
+    label: Default Settings
+    elements:
+      - type: instructions
+        text: Configure default settings for the Opal tool integration here
+      - type: text
+        key: locale
+        label: Default locale
+        help: |
+          Specify the default locale to be used by the Opal tool integration (e.g., en-US)
+      - type: text
+        key: timezone
+        label: Default timezone
+        help: |
+          Specify the default timezone to be used by the Opal tool integration (e.g., America/New_York)
