@@ -21,8 +21,10 @@
   },
   "dependencies": {
     "@optimizely-opal/opal-tool-ocp-sdk": "^1.1.0",
-    "@zaiusinc/app-sdk": "3.3.2",
-    "@zaiusinc/node-sdk": "3.0.0"
+    "@zaiusinc/app-sdk": "3.3.3",
+    "@zaiusinc/node-sdk": "3.0.0",
+    "google-auth-library": "^10.5.0",
+    "googleapis": "^171.1.0"
   },
   "resolutions": {
     "grpc-boom": "^3.0.11"

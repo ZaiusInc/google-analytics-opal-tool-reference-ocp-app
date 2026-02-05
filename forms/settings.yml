@@ -1,16 +1,147 @@
 sections:
-  - key: defaults
-    label: Default Settings
+  - key: authentication
+    label: Authenticate Google Analytics
+    elements:
+      - type: select
+        key: auth_method
+        label: Authentication Method
+        help: Choose how to authenticate with Google Analytics API
+        required: true
+        options:
+          - text: Service Account Authentication
+            value: service_account
+          - text: Application Default Credentials (ADC)
+            value: adc
+      - type: divider
+      - type: instructions
+        visible:
+          key: authentication.auth_method
+          equals: service_account
+        text: |
+          **Service Account Authentication:**
+          - Create a service account in Google Cloud Console
+          - Grant the service account access to your GA4 properties
+          - Download the JSON key and paste its contents in the field below
+          - Ensure the service account has the required scopes enabled:
+            - `https://www.googleapis.com/auth/cloud-platform`
+            - `https://www.googleapis.com/auth/analytics.readonly`
+          - [See this guide for details.](https://developers.google.com/analytics/devguides/config/userdeletion/v3/authorization#service_accounts)
+      - type: instructions
+        visible:
+          key: authentication.auth_method
+          equals: adc
+        text: |
+          **Application Default Credentials (ADC):**
+          - Recommended when service account keys are disabled by organization policy
+          - Run `gcloud auth application-default login --scopes="https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/analytics.readonly"` command
+          - This ensures both required scopes are granted:
+            - `https://www.googleapis.com/auth/cloud-platform`
+            - `https://www.googleapis.com/auth/analytics.readonly`
+          - Copy `client_id`, `client_secret` and `refresh_token` from `$HOME/.config/gcloud/application_default_credentials.json` file into the fields below
+          - [See this guide for details.](https://cloud.google.com/docs/authentication/application-default-credentials#personal)
+      - type: secret
+        key: service_account_json
+        label: Service Account JSON
+        help: Paste the complete service account credentials JSON file content
+        validations:
+          - predicate:
+              operation: any
+              comparators:
+              - key: service_account_json
+                empty: false
+              - key: auth_method
+                equals: 'adc'
+            message: The field is required for Service Account Authentication
+        visible:
+          key: authentication.auth_method
+          equals: service_account
+      - type: text
+        key: client_id
+        label: Client ID
+        help: Your ADC client ID
+        validations:
+          - predicate:
+              operation: any
+              comparators:
+              - key: client_id
+                empty: false
+              - key: auth_method
+                equals: 'service_account'
+            message: The field is required for Application Default Credentials (ADC) authentication
+        visible:
+          key: authentication.auth_method
+          equals: adc
+      - type: secret
+        key: client_secret
+        label: Client Secret
+        help: Your ADC client secret
+        validations:
+          - predicate:
+              operation: any
+              comparators:
+              - key: client_secret
+                empty: false
+              - key: auth_method
+                equals: 'service_account'
+            message: The field is required for Application Default Credentials (ADC) authentication
+        visible:
+          key: authentication.auth_method
+          equals: 'adc'
+      - type: secret
+        key: refresh_token
+        label: Refresh Token
+        help: Your ADC refresh token
+        validations:
+          - predicate:
+              operation: any
+              comparators:
+              - key: refresh_token
+                empty: false
+              - key: auth_method
+                equals: 'service_account'
+            message: The field is required for Application Default Credentials (ADC) authentication
+        visible:
+          key: authentication.auth_method
+          equals: adc
+      - type: text
+        key: project_id
+        label: Google Cloud Project ID
+        help: The GCP project ID associated with your Google Analytics property
+        required: true
+        visible:
+          key: authentication.auth_method
+          empty: false
+      - type: text
+        key: property_id
+        label: Google Analytics property ID
+        required: true
+        help: "Accepted formats are: number or properties/{property_id}"
+        visible:
+          key: authentication.auth_method
+          empty: false
+      - type: button
+        label: Authenticate
+        style: primary
+        action: authorize
+
+  - key: default_filters
+    label: Default Filter
     elements:
       - type: instructions
-        text: Configure default settings for the Opal tool integration here
+        text: |
+          **Hostname Filter Configuration:**
+          - Filter Google Analytics **standard reports** by a specific hostname
+          - This is useful when multiple hostnames are tracked in a single GA4 property
+          - Enter just the hostname (e.g., "www.optimizely.com") - no protocol (https://)
+          - Leave empty to show data for all tracked hostnames
+
+          **Note:** Hostname filtering is NOT supported for realtime reports due to GA4 API limitations.
+          Realtime reports will ignore this filter and return data for all hostnames.
       - type: text
-        key: locale
-        label: Default locale
-        help: |
-          Specify the default locale to be used by the Opal tool integration (e.g., en-US)
-      - type: text
-        key: timezone
-        label: Default timezone
-        help: |
-          Specify the default timezone to be used by the Opal tool integration (e.g., America/New_York)
+        key: domain
+        label: Hostname Filter
+        help: Enter a hostname to filter all queries (e.g., "www.optimizely.com"). Leave empty to disable filtering.
+      - type: button
+        label: Save Filter
+        style: primary
+        action: authorize
