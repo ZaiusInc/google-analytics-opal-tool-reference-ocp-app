@@ -3,7 +3,13 @@ import { ToolFunction } from '@optimizely-opal/opal-tool-ocp-sdk';
 // Tool registration: The @tool decorator automatically registers tools when
 // the module is imported. Each tool class must be imported here to register
 // its tools with the function. See SDK docs for details.
-import '../tools/TodayDateTool';
+import '../tools/RunReportTool';
+import '../tools/RunRuntimeReportTool';
+import '../tools/support/GetCustomDimensionsAndMetricsTool';
+import '../tools/support/GetDimensionsTool';
+import '../tools/support/GetMetricsTool';
+import '../tools/support/GetPropertyIdTool';
+import '../tools/support/LookupDimentionMetricNamesTool';
 
 /**
  * Class that implements the Opal tool functions.
