@@ -1,4 +1,8 @@
-import { ToolFunction } from '@optimizely-opal/opal-tool-ocp-sdk';
+import { ToolFunction, ReadyResponse } from '@optimizely-opal/opal-tool-ocp-sdk';
+import { storage } from '@zaiusinc/app-sdk';
+import { AuthSection } from '../data/data';
+import { constructPropertyResourceName } from '../lib/utils';
+import { AppAuth } from '../lib/api/GoogleAnalyticsApiClient';
 
 // Tool registration: The @tool decorator automatically registers tools when
 // the module is imported. Each tool class must be imported here to register
@@ -16,14 +20,25 @@ import '../tools/support/LookupDimentionMetricNamesTool';
  */
 export class OpalToolFunction extends ToolFunction {
 
-  /**
-   * Optional: Override the ready() method to check if the function is ready to process requests
-   * The /ready endpoint will call this method and return the status
-   */
-  protected async ready(): Promise<boolean> {
-    // Add any initialization checks here
-    // For example: check if external services are available, configuration is valid, etc.
-    return true;
+  protected override async ready(): Promise<ReadyResponse> {
+    const authSection = await storage.settings.get<AuthSection>(
+      'authentication'
+    );
+    if (authSection == null || !authSection.auth_method) {
+      return { ready: false, reason: 'Authenticate to Google Analytics first.' };
+    }
+    try {
+      const property = constructPropertyResourceName(
+        authSection.property_id || ''
+      );
+
+      const name = `${property}/metadata`;
+      await AppAuth.fromSettings(authSection).getDataClient().properties.getMetadata({name});
+      return { ready: true };
+    } catch (error: any) {
+      console.error('Error fetching metadata:', error);
+      return { ready: false, reason: 'Authentication not configured correctly: ' + error.message };
+    }
   }
 
 }
