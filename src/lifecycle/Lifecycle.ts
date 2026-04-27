@@ -37,7 +37,7 @@ export class Lifecycle extends AppLifecycle {
   public async onSettingsForm(
     section: string,
     action: string,
-    formData: SubmittedFormData,
+    formData: SubmittedFormData
   ): Promise<LifecycleSettingsResult> {
     const result = new LifecycleSettingsResult();
     try {
@@ -45,10 +45,7 @@ export class Lifecycle extends AppLifecycle {
         // Validate Google API credentials before saving
         await this.validateGoogleCredentials(formData as AuthSection);
         await storage.settings.put(section, formData);
-        return result.addToast(
-          'success',
-          'Credentials validated successfully!',
-        );
+        return result.addToast('success', 'Credentials validated successfully!');
       } else {
         await storage.settings.put(section, formData);
       }
@@ -56,19 +53,14 @@ export class Lifecycle extends AppLifecycle {
       return result;
     } catch (error: any) {
       logger.error('Error validating credentials:', error);
-      return result.addToast(
-        'danger',
-        `Authentication failed: ${error.message || 'Unknown error occurred'}`,
-      );
+      return result.addToast('danger', `Authentication failed: ${error.message || 'Unknown error occurred'}`);
     }
   }
 
   /**
    * Validates Google Analytics API credentials by checking scopes and attempting to run a report
    */
-  private async validateGoogleCredentials(
-    formData: AuthSection,
-  ): Promise<void> {
+  private async validateGoogleCredentials(formData: AuthSection): Promise<void> {
     const authMethod = formData.auth_method;
 
     if (!authMethod) {
@@ -85,19 +77,11 @@ export class Lifecycle extends AppLifecycle {
         throw new Error('Service Account JSON is required');
       }
     } else if (authMethod === 'adc') {
-      if (
-        !formData.client_id ||
-        !formData.client_secret ||
-        !formData.refresh_token
-      ) {
-        throw new Error(
-          'ADC credentials require Client ID, Client Secret, and Refresh Token',
-        );
+      if (!formData.client_id || !formData.client_secret || !formData.refresh_token) {
+        throw new Error('ADC credentials require Client ID, Client Secret, and Refresh Token');
       }
     } else {
-      throw new Error(
-        `Unsupported authentication method: ${authMethod as string}`,
-      );
+      throw new Error(`Unsupported authentication method: ${authMethod as string}`);
     }
 
     try {
@@ -113,9 +97,7 @@ export class Lifecycle extends AppLifecycle {
       // This verifies both authentication and GA4 property access
       const dataClient = appAuth.getDataClient();
 
-      const property = constructPropertyResourceName(
-        formData.property_id || '',
-      );
+      const property = constructPropertyResourceName(formData.property_id || '');
 
       // Build request object (property goes in the main params, not requestBody)
       const request = {
@@ -136,13 +118,10 @@ export class Lifecycle extends AppLifecycle {
         throw new Error('Invalid response from Google Analytics Data API');
       }
 
-      logger.info(
-        'Google Analytics API validation successful with report test',
-        {
-          property,
-          hasRows: (response.data.rows?.length || 0) > 0,
-        },
-      );
+      logger.info('Google Analytics API validation successful with report test', {
+        property,
+        hasRows: (response.data.rows?.length || 0) > 0,
+      });
     } catch (error: any) {
       // Extract meaningful error message from Google API error
       let errorMessage = 'Failed to connect to Google Analytics API';
@@ -163,22 +142,17 @@ export class Lifecycle extends AppLifecycle {
           // Scope validation failed - pass through the detailed error
           errorMessage = error.message;
         } else if (message.includes('invalid_grant')) {
-          errorMessage =
-            'Invalid credentials. Please check your Client ID, Client Secret, and Refresh Token.';
+          errorMessage = 'Invalid credentials. Please check your Client ID, Client Secret, and Refresh Token.';
         } else if (message.includes('invalid_client')) {
           errorMessage = 'Invalid Client ID or Client Secret.';
         } else if (message.includes('unauthorized_client')) {
-          errorMessage =
-            'ADC client is not authorized. Please check your ADC setup.';
+          errorMessage = 'ADC client is not authorized. Please check your ADC setup.';
         } else if (message.includes('access_denied')) {
-          errorMessage =
-            'Access denied. Please ensure your credentials have access to Google Analytics.';
+          errorMessage = 'Access denied. Please ensure your credentials have access to Google Analytics.';
         } else if (message.includes('quota')) {
-          errorMessage =
-            'Google Analytics API quota exceeded. Please try again later.';
+          errorMessage = 'Google Analytics API quota exceeded. Please try again later.';
         } else if (message.includes('Invalid JSON')) {
-          errorMessage =
-            'Invalid Service Account JSON format. Please check your JSON content.';
+          errorMessage = 'Invalid Service Account JSON format. Please check your JSON content.';
         } else if (!errorMessage.includes('403')) {
           // Only append the error message if we haven't already set a 403 message
           errorMessage += `: ${error.message}`;
@@ -197,19 +171,14 @@ export class Lifecycle extends AppLifecycle {
 
   public async onAuthorizationRequest(
     _section: string,
-    _formData: SubmittedFormData,
+    _formData: SubmittedFormData
   ): Promise<LifecycleSettingsResult> {
     const result = new LifecycleSettingsResult();
     return result.addToast('danger', 'Sorry, OAuth is not supported.');
   }
 
-  public async onAuthorizationGrant(
-    _request: Request,
-  ): Promise<AuthorizationGrantResult> {
-    return new AuthorizationGrantResult('').addToast(
-      'danger',
-      'Sorry, OAuth is not supported.',
-    );
+  public async onAuthorizationGrant(_request: Request): Promise<AuthorizationGrantResult> {
+    return new AuthorizationGrantResult('').addToast('danger', 'Sorry, OAuth is not supported.');
   }
 
   public async onUpgrade(_fromVersion: string): Promise<LifecycleResult> {
@@ -219,9 +188,7 @@ export class Lifecycle extends AppLifecycle {
     return { success: true };
   }
 
-  public async onFinalizeUpgrade(
-    _fromVersion: string,
-  ): Promise<LifecycleResult> {
+  public async onFinalizeUpgrade(_fromVersion: string): Promise<LifecycleResult> {
     // TODO: any logic required when finalizing an upgrade from a previous version
     // At this point, new webhook URLs have been created for any new functions in this version
     return { success: true };
