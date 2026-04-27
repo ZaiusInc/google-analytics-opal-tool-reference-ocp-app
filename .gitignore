@@ -11,3 +11,4 @@ coverage/
 .history
 *.iml
 .ocp-local
+/.npmrc
