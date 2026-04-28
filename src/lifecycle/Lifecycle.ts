@@ -8,7 +8,7 @@ import {
   storage,
   SubmittedFormData
 } from '@zaiusinc/app-sdk';
-import { AppAuth, createConfigFromSettings } from '../lib/api/GoogleAnalyticsApiClient';
+import { AppAuth } from '../lib/api/GoogleAnalyticsApiClient';
 import { constructPropertyResourceName } from '../lib/utils';
 import { AuthSection } from '../data/data';
 
@@ -99,11 +99,8 @@ export class Lifecycle extends AppLifecycle {
     }
 
     try {
-      // Create authentication configuration
-      const config = createConfigFromSettings(formData);
-
       // Create auth client and test API access
-      const appAuth = new AppAuth(config);
+      const appAuth = AppAuth.fromSettings(formData);
 
       // Validate that the credentials have the required OAuth scopes
       logger.info('Validating OAuth scopes for Google Analytics API access');
